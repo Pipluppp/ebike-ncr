@@ -17,7 +17,7 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index_sidebar_test.html')
 
 @app.route('/process_coords', methods=['POST'])
 def process_coords():
