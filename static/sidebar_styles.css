@@ -1,0 +1,38 @@
+.lorem {
+    font-style: italic;
+    color: #AAA;
+}
+
+body > #sidebar {
+    display: none;
+}
+
+/* Sidebar button toggle on the left edge Source: Claude */
+#sidebarToggle {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    background-color: #c0bebe;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-left: none;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding: 60px 4px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#sidebarToggle:hover {
+    background-color: #f7f1ea; /* #f4f4f4 */
+    padding-right: 12px;
+}
+
+#sidebarToggle .icon {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    display: block;
+}
