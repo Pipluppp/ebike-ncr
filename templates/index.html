@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+ crossorigin=""></script>
+    <link rel="stylesheet" href="static/style.css">
+ <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+    #map {
+        height: 100%;
+    }
+</style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Base map view
+        var map = L.map('map').setView([14.6091, 121.0223], 11);
+
+        // Add map tile layer dark (para astig)
+        const layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors, © CartoDB'
+        }).addTo(map);
+    </script>
+    <script>
+        // Function to fetch and add GeoJSON data to the map
+        var ncr_geojson = 'https://raw.githubusercontent.com/faeldon/philippines-json-maps/master/2023/geojson/regions/medres/provdists-region-1300000000.0.01.json'
+        
+        function addLandBoundary(url) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        // Add some styling for the land boundary
+                        style: function (feature) {
+                            return {
+                                'fillColor': '#e0e0ff',
+                                'weight': 0,
+                                'fillOpacity': 0.1
+                            }
+                        }
+                    }).addTo(map);
+                })
+                .catch(error => console.error('Error loading GeoJSON:', error));
+        }
+
+        addLandBoundary(ncr_geojson);
+    </script>
+    <script>
+        // Add sourcer marker
+        const source = [14.50590, 120.99105]
+        sourceCircleMarker = L.circleMarker(source).addTo(map)
+        sourceCircleMarker.setStyle({color: 'white'});
+    </script>
+    <script>
+        // On map click trigger popup for coordinates, then fetch to pass the coordinates to the /process_coords route in flask
+        function onMapClick(e) {
+            var lat = e.latlng.lat;
+            var lon = e.latlng.lng;
+            var popup = L.popup()
+                .setLatLng(e.latlng)
+                .setContent("Lat: " + lat + "<br>Lon: " + lon)
+                .openOn(map);
+
+            // Send the coordinates to the Flask app
+            fetch('/process_coords', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ lat: lat, lon: lon })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+
+                var firstpolyline = new L.Polyline(data.path, {
+                    color: 'white',
+                    weight: 5,
+                    opacity: 0.4,
+                    smoothFactor: 1
+                }).addTo(map);
+
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        map.on('click', onMapClick);
+    </script>
+</body>
+</html>
