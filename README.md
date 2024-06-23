@@ -2,6 +2,11 @@
 
 E-bike routing in NCR for shortest path
 
+## TODO
+
+- [ ] Create the set of edges from `metro_drive.graphml` corresponding to the banned roads
+- [ ] 
+
 **Dynamic shortest path routes to destination clicked on map (fixed source)**
 
 ![demo](./ebike_ncr_demo.gif)
