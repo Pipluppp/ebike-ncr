@@ -103,6 +103,7 @@
                 .openOn(map);
 
             // Send the coordinates to the Flask app
+            console.time("backendDijkstraTest") // Time the request and receiving of data from backend Dijkstr algorithm
             fetch('/process_coords', {
                 method: 'POST',
                 headers: {
@@ -112,8 +113,9 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                console.timeEnd("backendDijkstraTest")
 
+                console.time("drawingRouteTest") // Test route drawing time
                 var firstpolyline = new L.Polyline(data.path, {
                     color: 'white',
                     weight: 5,
@@ -121,6 +123,7 @@
                     smoothFactor: 1
                 }).addTo(map);
 
+                console.timeEnd("drawingRouteTest")
             })
             .catch(error => console.error('Error:', error));
         }
