@@ -123,6 +123,11 @@
                     smoothFactor: 1
                 }).addTo(map);
 
+                map.flyTo([lat, lon], 13, {
+                    animate: true,
+                    duration: 1.5
+                });
+
                 console.timeEnd("drawingRouteTest")
             })
             .catch(error => console.error('Error:', error));
