@@ -8,7 +8,7 @@ app = Flask(__name__)
 with app.app_context():
     """Loads the Network graph before receiving requests"""
     # Load graph and stuff before running the flask app
-    G = ox.io.load_graphml(filepath="data/metro_drive.graphml")
+    G = ox.io.load_graphml(filepath="data/metro_graph_without_prohibited.graphml")
     ncr_land_boundary = open('data/metro.json').read()
     weight = "length"
 
@@ -28,7 +28,7 @@ def process_coords():
     lon = data.get('lon')
 
     # Get nearest nodes from the source and target
-    source = ox.nearest_nodes(G, 120.99105, 14.50590)
+    source = ox.nearest_nodes(G, 121.04437, 14.58182) # 120.99105, 14.50590
     target = ox.nearest_nodes(G, lon, lat)
 
     # Run Dijkstra algorithm
