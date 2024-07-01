@@ -55,9 +55,11 @@
         var map = L.map('map').setView([14.6091, 121.0223], 11);
 
         // Add map tile layer dark (para astig)
-        var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors, © CartoDB'
-        }).addTo(map);
+        var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
     </script>
 
     <script>
