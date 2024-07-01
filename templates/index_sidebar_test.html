@@ -116,17 +116,22 @@
                 console.timeEnd("backendDijkstraTest")
 
                 console.time("drawingRouteTest") // Test route drawing time
-                var firstpolyline = new L.Polyline(data.path, {
-                    color: 'white',
-                    weight: 5,
-                    opacity: 0.4,
-                    smoothFactor: 1
-                }).addTo(map);
+                if (data.path === null) {
+                    L.popup().setLatLng([lat, lon]).setContent("No route found to this location.").openOn(map);
+                }
+                else {
+                    var firstpolyline = new L.Polyline(data.path, {
+                        color: 'white',
+                        weight: 5,
+                        opacity: 0.4,
+                        smoothFactor: 1
+                    }).addTo(map);
 
-                map.flyTo([lat, lon], 13, {
-                    animate: true,
-                    duration: 1.5
-                });
+                    map.flyTo([lat, lon], 13, {
+                        animate: true,
+                        duration: 1.5
+                    });
+                }
 
                 console.timeEnd("drawingRouteTest")
             })

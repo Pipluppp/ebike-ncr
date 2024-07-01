@@ -26,7 +26,7 @@ def dijkstra(G, source, target):
         
         # End algorithm when vertex visited is the goal node
         if vertex == target:
-            break
+            return parents
 
         # Relax neighbor vertices of vertex
         for _, neighbor, edge_length in G.out_edges(vertex, data="length"):
@@ -37,7 +37,7 @@ def dijkstra(G, source, target):
             neighbor_cost = vertex_cost + edge_length 
             heapq.heappush(queue, (neighbor_cost, neighbor, vertex))
 
-    return parents
+    return None
 
 def create_path(nodes, parents, target):
     """
@@ -50,6 +50,9 @@ def create_path(nodes, parents, target):
     path: list
         A list of lists of the coordinates of each node forming the shortest path to target
     """
+
+    if parents is None:
+        return None
 
     v = target
     path = []
