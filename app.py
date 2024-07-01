@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template
-from dijkstra import dijkstra, make_path, coordinate_path
+from dijkstra import dijkstra, create_path
 import osmnx as ox
 import heapq
 
@@ -8,7 +8,7 @@ app = Flask(__name__)
 with app.app_context():
     """Loads the Network graph before receiving requests"""
     # Load graph and stuff before running the flask app
-    G = ox.io.load_graphml(filepath="data/metro_graph_without_prohibited.graphml")
+    G = ox.io.load_graphml(filepath="data/metro_drive.graphml")
     ncr_land_boundary = open('data/metro.json').read()
     weight = "length"
 
@@ -32,13 +32,8 @@ def process_coords():
     target = ox.nearest_nodes(G, lon, lat)
 
     # Run Dijkstra algorithm
-    shortest_path = dijkstra(G, source, target)
-
-    # Output of Dijkstra is just the target node, create the path of node IDs from source to target
-    route = make_path(shortest_path, target)
-
-    # LeafletJS requires a list of the coordinates of each node: converts list of nodes to list of coordinates
-    path = coordinate_path(nodes, route)
+    path_parents_nodes = dijkstra(G, source, target)
+    path = create_path(nodes, path_parents_nodes, target)
 
     # Process the coordinates as needed
     response = {

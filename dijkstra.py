@@ -1,6 +1,16 @@
 import heapq
 
 def dijkstra(G, source, target):
+    """
+    Dijkstra shortest path single-source single-target,
+    
+    Returns
+    -------
+    parents: dictionary 
+        Parents of each node
+
+        Used by create_path to form the sequence of nodes forming the shortest path
+    """
     visited = set()
     queue = [(0, source, None)]  # (tentative cost, vertex, parent)
     parents = {}
@@ -29,23 +39,23 @@ def dijkstra(G, source, target):
 
     return parents
 
-# Make path: list of node id's
-def make_path(parent, goal):
-    """Given the Dijkstra algorithm output, creates the list of OSM node IDs of the shortest path"""
-    if goal not in parent:
-        return None
-    v = goal
-    path = []
-    while v is not None: # root has null parent
-        path.append(v)
-        v = parent[v]
-    return path[::-1]
+def create_path(nodes, parents, target):
+    """
+    Given the Dijkstra function output parents (dictionary of nodes' parent),
+    return the list of coordinates of the shortest path/route
 
-def coordinate_path(nodes, route):
-    """Given a list of OSM node IDs for the shortest path, return it as list of lists of the coordinates per node in the shortest path"""
+    Returns
+    -------
+
+    path: list
+        A list of lists of the coordinates of each node forming the shortest path to target
+    """
+
+    v = target
     path = []
-    filtered_nodes = nodes[nodes.index.isin(route)]
-    coordinates = filtered_nodes[['y', 'x']]
-    for node in route:
-        path.append(coordinates.loc[node].values.tolist())
-    return path
+    while v is not None:
+        coordinates = nodes.loc[v, ['y', 'x']].values.tolist()
+        path.append(coordinates)
+        v = parents[v]
+    
+    return path[::-1]
