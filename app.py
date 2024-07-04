@@ -26,12 +26,12 @@ def process_coords():
     data = request.json
     sourceLat = data.get('sourceLat')
     sourceLng = data.get('sourceLng')
-    destLat = data.get('destLat')
-    destLng = data.get('destLng')
+    targetLat = data.get('targetLat')
+    targetLng = data.get('targetLng')
 
     # Get nearest nodes from the source and target
     source = ox.nearest_nodes(G, sourceLng, sourceLat)
-    target = ox.nearest_nodes(G, destLng, destLat)
+    target = ox.nearest_nodes(G, targetLng, targetLat)
 
     # Run Dijkstra algorithm
     path_parents_nodes = dijkstra(G, source, target)

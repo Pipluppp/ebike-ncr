@@ -113,74 +113,69 @@
     </script>
 
     <script>
+        const contextMenu = document.getElementById('context-menu');
+        const coordsElement = document.getElementById('coordinates');
+        
+        let sourceMarker, targetMarker;
+        let clickCoordinates, sourceCoordinates, targetCoordinates;
+        let currentPolyline;
 
-        var contextMenu = document.getElementById('context-menu');
-        var coordsElement = document.getElementById('coordinates');
-        var sourceLat, sourceLng, destLat, destLng;
-        var currentPolyline;
-
+        // Context menu 
         map.on('contextmenu', function (e) {
             e.originalEvent.preventDefault();
-            var lat = e.latlng.lat.toFixed(5);
-            var lng = e.latlng.lng.toFixed(5);
-            coordsElement.textContent = `${lat}, ${lng}`;
-            showContextMenu(e.containerPoint.x, e.containerPoint.y);
-        });
+            clickCoordinates = { 
+                lat: e.latlng.lat, 
+                lng: e.latlng.lng
+            };
+            coordsElement.textContent = `${clickCoordinates.lat.toFixed(5)}, ${clickCoordinates.lng.toFixed(5)}`;
 
-        function showContextMenu(x, y) {
+            // Display the menu on event click position
             contextMenu.style.display = 'block';
-            contextMenu.style.left = x + 'px';
-            contextMenu.style.top = y + 'px';
-        }
+            contextMenu.style.left = `${e.containerPoint.x}px`;
+            contextMenu.style.top = `${e.containerPoint.y}px`;
+        });
 
-        map.on('click', function () {
+        // Hide context menu when click or move
+        map.on('click move', function () {
             contextMenu.style.display = 'none';
         });
 
-        map.on('move', function () {
-            contextMenu.style.display = 'none';
-        });
-
+        // Directions-from and Directions-to listeners
         document.getElementById('directions-from').addEventListener('click', function () {
-            var coords = coordsElement.textContent.split(', ');
-            sourceLat = parseFloat(coords[0]);
-            sourceLng = parseFloat(coords[1]);
-            alert('Source set to: ' + sourceLat + ', ' + sourceLng);
-            contextMenu.style.display = 'none';
+            sourceCoordinates = clickCoordinates    
+            contextMenu.style.display = 'none'
+            // Add marker here
 
-            if (destLat && destLng) {
-                getDirections();
-            }
+            mapRoute()
         });
 
         document.getElementById('directions-to').addEventListener('click', function () {
-            var coords = coordsElement.textContent.split(', ');
-            destLat = parseFloat(coords[0]);
-            destLng = parseFloat(coords[1]);
-            alert('Destination set to: ' + destLat + ', ' + destLng);
-            contextMenu.style.display = 'none';
-            if (sourceLat && sourceLng) {
-                getDirections();
-            }
+            targetCoordinates = clickCoordinates
+            contextMenu.style.display = 'none'
+            // Add marker here
+
+            mapRoute()
         });
 
-        function getDirections() {
+        function mapRoute() {
             if (currentPolyline) {
                 map.removeLayer(currentPolyline);
             }
 
-            fetch('/process_coords', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    sourceLat: sourceLat,
-                    sourceLng: sourceLng,
-                    destLat: destLat,
-                    destLng: destLng
+            // Only run the route when both Source and Target coordinates are present
+            if (sourceCoordinates && targetCoordinates) {
+                fetch('/process_coords', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sourceLat: sourceCoordinates.lat,
+                        sourceLng: sourceCoordinates.lng,
+                        targetLat: targetCoordinates.lat,
+                        targetLng: targetCoordinates.lng
+                    })
                 })
-            })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);
@@ -192,7 +187,13 @@
                     }).addTo(map);
                 })
                 .catch(error => console.error('Error:', error));
+            }
         }
+
+        function setMarkers() {
+
+        }
+
     </script>
     <script src="static/L.Control.Sidebar.js"></script>
     <script src="static/button_toggle_visibility_sidebar.js"></script>
