@@ -7,11 +7,17 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <link rel="stylesheet" href="static/L.Control.Sidebar.css" />
+    <link rel="stylesheet" href="static/sidebar_styles.css">
     <style>
         html,
         body {
             height: 100%;
             margin: 0;
+        }
+        body { 
+            font-family: 'Roboto', sans-serif;
         }
 
         #map {
@@ -44,6 +50,30 @@
 </head>
 
 <body>
+    <div id="sidebar">
+        <h1>E-bike routing Metro Manila</h1>
+
+        <p>A shortest path routing application on <a href="http://leafletjs.com/">LeafletJS</a> interactive maps.</p>
+
+        <p><b>Click on the map.</b></p>
+
+        <p>Technologies:</p>
+
+        <ul>
+            <li><a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a></li>
+            <li><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a></li>
+        </ul>
+
+        <p class="lorem">This web application is designed to streamline your E-bike commutes and explorations within Metro Manila. Utilizing Dijkstra's algorithm the shortest path is provided for E-bikes, considering the MMDA Regulation No. 24-022 prohibiting e-bikes from travelling on national roads, circumferential roads, and radial roads in all cities of NCR starting April 2024..</p>
+
+        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+
+        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+
+    </div>
+    
+    <button id="sidebarToggle"> </button>
+
     <div id="map"></div>
     <div id="context-menu" class="context-menu">
         <div class="context-menu-item context-menu-coords" id="coordinates"></div>
@@ -55,6 +85,34 @@
         var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors, © CartoDB'
         }).addTo(map);
+    </script>
+
+    <script>
+        // Function to fetch and add GeoJSON data to the map
+        var ncr_geojson = 'https://raw.githubusercontent.com/faeldon/philippines-json-maps/master/2023/geojson/regions/medres/provdists-region-1300000000.0.01.json'
+        
+        function addLandBoundary(url) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        // Add some styling for the land boundary
+                        style: function (feature) {
+                            return {
+                                'fillColor': '#e0e0ff',
+                                'weight': 0,
+                                'fillOpacity': 0.1
+                            }
+                        }
+                    }).addTo(map);
+                })
+                .catch(error => console.error('Error loading GeoJSON:', error));
+        }
+
+        addLandBoundary(ncr_geojson);
+    </script>
+
+    <script>
 
         var contextMenu = document.getElementById('context-menu');
         var coordsElement = document.getElementById('coordinates');
@@ -136,6 +194,8 @@
                 .catch(error => console.error('Error:', error));
         }
     </script>
+    <script src="static/L.Control.Sidebar.js"></script>
+    <script src="static/button_toggle_visibility_sidebar.js"></script>
 </body>
 
 </html>
