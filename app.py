@@ -18,18 +18,20 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    return render_template('index_sidebar_test.html')
+    return render_template('index.html')
 
 @app.route('/process_coords', methods=['POST'])
 def process_coords():
-    """The fetch function in index.html is triggered onMapClick, it then passes the data to this route"""
+    """Handles both source and destination coordinates and returns a path between them"""
     data = request.json
-    lat = data.get('lat')
-    lon = data.get('lon')
+    sourceLat = data.get('sourceLat')
+    sourceLng = data.get('sourceLng')
+    destLat = data.get('destLat')
+    destLng = data.get('destLng')
 
     # Get nearest nodes from the source and target
-    source = ox.nearest_nodes(G, 121.04437, 14.58182) # 120.99105, 14.50590
-    target = ox.nearest_nodes(G, lon, lat)
+    source = ox.nearest_nodes(G, sourceLng, sourceLat)
+    target = ox.nearest_nodes(G, destLng, destLat)
 
     # Run Dijkstra algorithm
     path_parents_nodes = dijkstra(G, source, target)
@@ -37,9 +39,7 @@ def process_coords():
 
     # Process the coordinates as needed
     response = {
-        'message': 'Coordinates received',
-        'lat': lat,
-        'lon': lon,
+        'message': 'Path calculated',
         'path': path
     }
     return jsonify(response)    
