@@ -82,8 +82,10 @@
     </div>
     <script>
         var map = L.map('map').setView([14.6091, 121.0223], 12);
-        var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors, © CartoDB'
+        var layer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
         }).addTo(map);
 
         // Add prohibited roads to the map
@@ -211,11 +213,6 @@
                         polyline.addTo(polyLineGroup)
                     });
 
-/*                     polyLines.forEach(style => {
-                        const polyline = L.Polyline(data.path, style)
-                        polyline.addTo(polyLineGroup);
-                    });
- */
                     polyLineGroup.addTo(map);
                 })
                 .catch(error => console.error('Error:', error));
