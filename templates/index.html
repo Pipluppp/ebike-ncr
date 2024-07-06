@@ -92,9 +92,10 @@
         L.geoJSON(prohibitedEdges, {
             style: function(feature) {
                 return {
-                    color: "#5e5e70",
+                    color: "#4f4f5c",
                     weight: 2,
-                    opacity: 0.8
+                    opacity: 0.8,
+                    smoothFactor: 2
                 };
             }
         }).addTo(map);
@@ -112,9 +113,9 @@
                         // Add some styling for the land boundary
                         style: function (feature) {
                             return {
-                                'fillColor': '#d0d0ef',
+                                'fillColor': '#190e16',
                                 'weight': 0,
-                                'fillOpacity': 0.05
+                                'fillOpacity': 0.15
                             }
                         }
                     }).addTo(map);
@@ -132,6 +133,16 @@
         let sourceMarker, targetMarker;
         let clickCoordinates, sourceCoordinates, targetCoordinates;
         let currentPolyline;
+        let polyLineGroup = L.layerGroup(); // Multiple polylines for a single path to have gradient
+        const polyLines = [
+            { color: '#380818', weight: 14},
+            { color: '#4d0727', weight: 12},
+            { color: '#b45513', weight: 9, opacity: 0.7},
+            { color: '#b45513', weight: 8},
+            { color: '#fdd036', weight: 5, opacity: 0.9},
+            { color: '#fcfac4', weight: 3, opacity: 0.95},
+            { color: '#ffffff', weight: 1}
+        ];
 
         // Context menu 
         map.on('contextmenu', function (e) {
@@ -171,8 +182,9 @@
         });
 
         function mapRoute() {
-            if (currentPolyline) {
-                map.removeLayer(currentPolyline);
+            if (polyLineGroup) {
+                map.removeLayer(polyLineGroup);
+                polyLineGroup.clearLayers();
             }
 
             // Only run the route when both Source and Target coordinates are present
@@ -192,12 +204,19 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);
-                    currentPolyline = new L.Polyline(data.path, {
-                        color: '#f45f02',
-                        weight: 5,
-                        opacity: 0.8,
-                        smoothFactor: 1
-                    }).addTo(map);
+                    
+                    // Multiple polylines with different weights and colors to create gradient effect
+                    polyLines.forEach(style => {
+                        const polyline = new L.Polyline(data.path, style)
+                        polyline.addTo(polyLineGroup)
+                    });
+
+/*                     polyLines.forEach(style => {
+                        const polyline = L.Polyline(data.path, style)
+                        polyline.addTo(polyLineGroup);
+                    });
+ */
+                    polyLineGroup.addTo(map);
                 })
                 .catch(error => console.error('Error:', error));
             }
