@@ -207,13 +207,19 @@
                 .then(data => {
                     console.log(data);
                     
-                    // Multiple polylines with different weights and colors to create gradient effect
-                    polyLines.forEach(style => {
-                        const polyline = new L.Polyline(data.path, style)
-                        polyline.addTo(polyLineGroup)
-                    });
+                    if (data.path === null) {
+                        alert('No route exists between the selected points')
+                    }
 
-                    polyLineGroup.addTo(map);
+                    else {
+                        // Multiple polylines with different weights and colors to create gradient effect
+                        polyLines.forEach(style => {
+                            const polyline = new L.Polyline(data.path, style)
+                            polyline.addTo(polyLineGroup)
+                        });
+    
+                        polyLineGroup.addTo(map);
+                    }
                 })
                 .catch(error => console.error('Error:', error));
             }
