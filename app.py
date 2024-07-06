@@ -2,23 +2,27 @@ from flask import Flask, request, jsonify, render_template
 from dijkstra import dijkstra, create_path
 import osmnx as ox
 import heapq
+import json
 
 app = Flask(__name__)
 
 with app.app_context():
     """Loads the Network graph before receiving requests"""
     # Load graph and stuff before running the flask app
-    G = ox.io.load_graphml(filepath="data/metro_drive.graphml")
+    G = ox.io.load_graphml(filepath="data/metro_graph_without_prohibited.graphml")
+    prohibited_G = ox.io.load_graphml(filepath="data/metro_graph_prohibited.graphml")
     ncr_land_boundary = open('data/metro.json').read()
     weight = "length"
 
+
     # Load GeoDataFrame for prohibited roads
     nodes, edges = ox.graph_to_gdfs(G, edges = True)
-    prohibited_roads = edges[(edges.highway == "motorway") | (edges.highway == "trunk") | (edges.highway == "primary")]
+    prohibited_nodes, prohibited_edges = ox.graph_to_gdfs(prohibited_G, edges = True)
+    prohibited_edges_geojson = json.loads(prohibited_edges.to_json())
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', prohibited_edges_geojson=json.dumps(prohibited_edges_geojson))
 
 @app.route('/process_coords', methods=['POST'])
 def process_coords():
