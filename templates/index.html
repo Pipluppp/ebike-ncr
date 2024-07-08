@@ -219,6 +219,21 @@
                         // Multiple polylines with different weights and colors to create gradient effect
                         polyLines.forEach(style => {
                             const polyline = new L.Polyline(data.path, style)
+                            
+                            // Change polyline weight on hover
+                            polyline.on ('mouseover', function(e) {
+                                e.target.setStyle({
+                                    color: '#0c0a0b'
+                                })
+                            })
+
+                            polyline.on ('mouseout', function(e) {
+                                e.target.setStyle(style)
+                            })
+
+                            polyline.on('click', function(e) {
+                                map.fitBounds(e.target.getBounds());
+                            });
                             polyline.addTo(polyLineGroup)
                         });
     
