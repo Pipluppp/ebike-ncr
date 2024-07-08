@@ -16,7 +16,7 @@ with app.app_context():
 
 
     # Load GeoDataFrame for prohibited roads
-    nodes, edges = ox.graph_to_gdfs(G, edges = True)
+    nodes, edges = ox.graph_to_gdfs(G, edges = True)    
     prohibited_nodes, prohibited_edges = ox.graph_to_gdfs(prohibited_G, edges = True)
     prohibited_edges_geojson = json.loads(prohibited_edges.to_json())
 
@@ -38,13 +38,14 @@ def process_coords():
     target = ox.nearest_nodes(G, targetLng, targetLat)
 
     # Run Dijkstra algorithm
-    path_parents_nodes = dijkstra(G, source, target)
+    path_parents_nodes, length = dijkstra(G, source, target)
     path = create_path(nodes, path_parents_nodes, target)
 
     # Process the coordinates as needed
     response = {
         'message': 'Path calculated',
-        'path': path
+        'path': path,
+        'length': length
     }
     return jsonify(response)    
 
