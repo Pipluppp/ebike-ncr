@@ -230,19 +230,38 @@
 
         // Directions-from and Directions-to listeners
         document.getElementById('directions-from').addEventListener('click', function () {
-            sourceCoordinates = clickCoordinates
-            contextMenu.style.display = 'none'
-            // Add marker here
-
-            mapRoute()
+            sourceCoordinates = clickCoordinates;
+            contextMenu.style.display = 'none';
+            
+            // Remove existing source marker if any
+            if (sourceCircleMarker) map.removeLayer(sourceCircleMarker);
+            
+            // Add new source marker immediately
+            sourceCircleMarker = L.circleMarker([sourceCoordinates.lat, sourceCoordinates.lng], { color: 'white' }).addTo(map);
+            
+            mapRoute();
         });
 
         document.getElementById('directions-to').addEventListener('click', function () {
-            targetCoordinates = clickCoordinates
-            contextMenu.style.display = 'none'
-            // Add marker here
-
-            mapRoute()
+            targetCoordinates = clickCoordinates;
+            contextMenu.style.display = 'none';
+            
+            // Remove existing destination marker if any
+            if (destMarker) map.removeLayer(destMarker);
+            
+            // Add new destination marker immediately
+            destMarker = L.marker([targetCoordinates.lat, targetCoordinates.lng], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                })
+            }).addTo(map);
+            
+            mapRoute();
         });
 
         function mapRoute() {
@@ -251,24 +270,9 @@
                 polyLineGroup.clearLayers();
             }
 
-
-            if (sourceCircleMarker) map.removeLayer(sourceCircleMarker);
-            if (destMarker) map.removeLayer(destMarker);
-
             // Only run the route when both Source and Target coordinates are present
             if (sourceCoordinates && targetCoordinates) {
 
-                sourceCircleMarker = L.circleMarker([sourceCoordinates.lat, sourceCoordinates.lng], { color: 'white' }).addTo(map);
-                destMarker = L.marker([targetCoordinates.lat, targetCoordinates.lng], {
-                    icon: L.icon({
-                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                        iconSize: [25, 41],
-                        iconAnchor: [12, 41],
-                        popupAnchor: [1, -34],
-                        shadowSize: [41, 41]
-                    })
-                }).addTo(map);
 
                 fetch('/process_coords', {
                     method: 'POST',

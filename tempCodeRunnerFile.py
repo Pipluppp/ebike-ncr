@@ -14,6 +14,7 @@ with app.app_context():
     ncr_land_boundary = open('data/metro.json').read()
     weight = "length"
 
+
     # Load GeoDataFrame for prohibited roads
     nodes, edges = ox.graph_to_gdfs(G, edges = True)    
     prohibited_nodes, prohibited_edges = ox.graph_to_gdfs(prohibited_G, edges = True)
