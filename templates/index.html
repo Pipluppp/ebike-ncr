@@ -194,6 +194,7 @@
         const coordsElement = document.getElementById('coordinates');
 
         let sourceCircleMarker, destMarker;
+        let sourceMarker, targetMarker;
         let clickCoordinates, sourceCoordinates, targetCoordinates;
         let currentPolyline;
         let polyLineGroup = L.layerGroup(); // Multiple polylines for a single path to have gradient
@@ -245,79 +246,80 @@
         });
 
         function mapRoute() {
-                if (polyLineGroup) {
-                    map.removeLayer(polyLineGroup);
-                    polyLineGroup.clearLayers();
-                }
-
-                // Remove existing markers if they exist
-                if (sourceCircleMarker) map.removeLayer(sourceCircleMarker);
-                if (destMarker) map.removeLayer(destMarker);
-
-                // Only run the route when both Source and Target coordinates are present
-                if (sourceCoordinates && targetCoordinates) {
-                    // Add new markers
-                    sourceCircleMarker = L.circleMarker([sourceCoordinates.lat, sourceCoordinates.lng], { color: 'white' }).addTo(map);
-                    destMarker = L.marker([targetCoordinates.lat, targetCoordinates.lng], {
-                        icon: L.icon({
-                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                            iconSize: [25, 41],
-                            iconAnchor: [12, 41],
-                            popupAnchor: [1, -34],
-                            shadowSize: [41, 41]
-                        })
-                    }).addTo(map);
-
-                    fetch('/process_coords', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            sourceLat: sourceCoordinates.lat,
-                            sourceLng: sourceCoordinates.lng,
-                            targetLat: targetCoordinates.lat,
-                            targetLng: targetCoordinates.lng
-                        })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data);
-
-                            if (data.path === null) {
-                                info.update(false)
-                            }
-                            else {
-                                // Multiple polylines with different weights and colors to create gradient effect
-                                polyLines.forEach(style => {
-                                    const polyline = new L.Polyline(data.path, style)
-
-                                    // Change polyline weight on hover
-                                    polyline.on('mouseover', function (e) {
-                                        e.target.setStyle({
-                                            color: '#0c0a0b'
-                                        })
-                                    })
-
-                                    polyline.on('mouseout', function (e) {
-                                        e.target.setStyle(style)
-                                    })
-
-                                    polyline.on('click', function (e) {
-                                        map.fitBounds(e.target.getBounds());
-                                    });
-                                    polyline.addTo(polyLineGroup)
-                                });
-
-                                polyLineGroup.addTo(map);
-
-                                info.update((data.length / 1000).toFixed(2))
-                            }
-                        })
-                        .catch(error => console.error('Error:', error));
-                }
+            if (polyLineGroup) {
+                map.removeLayer(polyLineGroup);
+                polyLineGroup.clearLayers();
             }
+
+
+            if (sourceCircleMarker) map.removeLayer(sourceCircleMarker);
+            if (destMarker) map.removeLayer(destMarker);
+
+            // Only run the route when both Source and Target coordinates are present
+            if (sourceCoordinates && targetCoordinates) {
+
+                sourceCircleMarker = L.circleMarker([sourceCoordinates.lat, sourceCoordinates.lng], { color: 'white' }).addTo(map);
+                destMarker = L.marker([targetCoordinates.lat, targetCoordinates.lng], {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    })
+                }).addTo(map);
+
+                fetch('/process_coords', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sourceLat: sourceCoordinates.lat,
+                        sourceLng: sourceCoordinates.lng,
+                        targetLat: targetCoordinates.lat,
+                        targetLng: targetCoordinates.lng
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+
+                        if (data.path === null) {
+                            info.update(false)
+                        }
+
+                        else {
+                            // Multiple polylines with different weights and colors to create gradient effect
+                            polyLines.forEach(style => {
+                                const polyline = new L.Polyline(data.path, style)
+
+                                // Change polyline weight on hover
+                                polyline.on('mouseover', function (e) {
+                                    e.target.setStyle({
+                                        color: '#0c0a0b'
+                                    })
+                                })
+
+                                polyline.on('mouseout', function (e) {
+                                    e.target.setStyle(style)
+                                })
+
+                                polyline.on('click', function (e) {
+                                    map.fitBounds(e.target.getBounds());
+                                });
+                                polyline.addTo(polyLineGroup)
+                            });
+
+                            polyLineGroup.addTo(map);
+
+                            info.update((data.length / 1000).toFixed(2))
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
     </script>
     <script src="static/L.Control.Sidebar.js"></script>
     <script src="static/button_toggle_visibility_sidebar.js"></script>
