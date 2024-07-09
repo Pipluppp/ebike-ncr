@@ -16,7 +16,8 @@
             height: 100%;
             margin: 0;
         }
-        body { 
+
+        body {
             font-family: 'Roboto', sans-serif;
         }
 
@@ -65,6 +66,7 @@
             -webkit-backdrop-filter: blur(5px);
             border: 1px solid rgba(163, 163, 163, 0.1);
         }
+
         .info h4 {
             margin: 0 0 5px;
             color: #b2b2b2;
@@ -87,14 +89,27 @@
             <li><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a></li>
         </ul>
 
-        <p class="lorem">This web application is designed to streamline your E-bike commutes and explorations within Metro Manila. Utilizing Dijkstra's algorithm the shortest path is provided for E-bikes, considering the MMDA Regulation No. 24-022 prohibiting e-bikes from travelling on national roads, circumferential roads, and radial roads in all cities of NCR starting April 2024..</p>
+        <p class="lorem">This web application is designed to streamline your E-bike commutes and explorations within
+            Metro Manila. Utilizing Dijkstra's algorithm the shortest path is provided for E-bikes, considering the MMDA
+            Regulation No. 24-022 prohibiting e-bikes from travelling on national roads, circumferential roads, and
+            radial roads in all cities of NCR starting April 2024..</p>
 
-        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+            ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et
+            ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum
+            dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore
+            magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita
+            kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
 
-        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+            ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et
+            ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum
+            dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore
+            magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita
+            kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
 
     </div>
-    
+
     <button id="sidebarToggle"> </button>
 
     <div id="map"></div>
@@ -135,10 +150,10 @@
         info.addTo(map);
 
         // Add prohibited roads to the map
-        var prohibitedEdges = {{ prohibited_edges_geojson|safe }};
-        
+        var prohibitedEdges = {{ prohibited_edges_geojson| safe }};
+
         L.geoJSON(prohibitedEdges, {
-            style: function(feature) {
+            style: function (feature) {
                 return {
                     color: "#3d3d47",
                     weight: 2,
@@ -152,7 +167,7 @@
     <script>
         // Function to fetch and add GeoJSON data to the map
         var ncr_geojson = 'https://raw.githubusercontent.com/faeldon/philippines-json-maps/master/2023/geojson/regions/medres/provdists-region-1300000000.0.01.json'
-        
+
         function addLandBoundary(url) {
             fetch(url)
                 .then(response => response.json())
@@ -177,26 +192,27 @@
     <script>
         const contextMenu = document.getElementById('context-menu');
         const coordsElement = document.getElementById('coordinates');
-        
+
+        let sourceCircleMarker, destMarker;
         let sourceMarker, targetMarker;
         let clickCoordinates, sourceCoordinates, targetCoordinates;
         let currentPolyline;
         let polyLineGroup = L.layerGroup(); // Multiple polylines for a single path to have gradient
         const polyLines = [
-            { color: '#380818', weight: 14},
-            { color: '#4d0727', weight: 12},
-            { color: '#b45513', weight: 9, opacity: 0.7},
-            { color: '#b45513', weight: 8},
-            { color: '#fdd036', weight: 5, opacity: 0.9},
-            { color: '#fcfac4', weight: 3, opacity: 0.95},
-            { color: '#ffffff', weight: 1}
+            { color: '#380818', weight: 14 },
+            { color: '#4d0727', weight: 12 },
+            { color: '#b45513', weight: 9, opacity: 0.7 },
+            { color: '#b45513', weight: 8 },
+            { color: '#fdd036', weight: 5, opacity: 0.9 },
+            { color: '#fcfac4', weight: 3, opacity: 0.95 },
+            { color: '#ffffff', weight: 1 }
         ];
 
         // Context menu 
         map.on('contextmenu', function (e) {
             e.originalEvent.preventDefault();
-            clickCoordinates = { 
-                lat: e.latlng.lat, 
+            clickCoordinates = {
+                lat: e.latlng.lat,
                 lng: e.latlng.lng
             };
             coordsElement.textContent = `${clickCoordinates.lat.toFixed(5)}, ${clickCoordinates.lng.toFixed(5)}`;
@@ -214,19 +230,38 @@
 
         // Directions-from and Directions-to listeners
         document.getElementById('directions-from').addEventListener('click', function () {
-            sourceCoordinates = clickCoordinates    
-            contextMenu.style.display = 'none'
-            // Add marker here
-
-            mapRoute()
+            sourceCoordinates = clickCoordinates;
+            contextMenu.style.display = 'none';
+            
+            // Remove existing source marker if any
+            if (sourceCircleMarker) map.removeLayer(sourceCircleMarker);
+            
+            // Add new source marker immediately
+            sourceCircleMarker = L.circleMarker([sourceCoordinates.lat, sourceCoordinates.lng], { color: 'white' }).addTo(map);
+            
+            mapRoute();
         });
 
         document.getElementById('directions-to').addEventListener('click', function () {
-            targetCoordinates = clickCoordinates
-            contextMenu.style.display = 'none'
-            // Add marker here
-
-            mapRoute()
+            targetCoordinates = clickCoordinates;
+            contextMenu.style.display = 'none';
+            
+            // Remove existing destination marker if any
+            if (destMarker) map.removeLayer(destMarker);
+            
+            // Add new destination marker immediately
+            destMarker = L.marker([targetCoordinates.lat, targetCoordinates.lng], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                })
+            }).addTo(map);
+            
+            mapRoute();
         });
 
         function mapRoute() {
@@ -237,6 +272,8 @@
 
             // Only run the route when both Source and Target coordinates are present
             if (sourceCoordinates && targetCoordinates) {
+
+
                 fetch('/process_coords', {
                     method: 'POST',
                     headers: {
@@ -249,42 +286,42 @@
                         targetLng: targetCoordinates.lng
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    
-                    if (data.path === null) {
-                        info.update(false)
-                    }
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
 
-                    else {
-                        // Multiple polylines with different weights and colors to create gradient effect
-                        polyLines.forEach(style => {
-                            const polyline = new L.Polyline(data.path, style)
-                            
-                            // Change polyline weight on hover
-                            polyline.on ('mouseover', function(e) {
-                                e.target.setStyle({
-                                    color: '#0c0a0b'
+                        if (data.path === null) {
+                            info.update(false)
+                        }
+
+                        else {
+                            // Multiple polylines with different weights and colors to create gradient effect
+                            polyLines.forEach(style => {
+                                const polyline = new L.Polyline(data.path, style)
+
+                                // Change polyline weight on hover
+                                polyline.on('mouseover', function (e) {
+                                    e.target.setStyle({
+                                        color: '#0c0a0b'
+                                    })
                                 })
-                            })
 
-                            polyline.on ('mouseout', function(e) {
-                                e.target.setStyle(style)
-                            })
+                                polyline.on('mouseout', function (e) {
+                                    e.target.setStyle(style)
+                                })
 
-                            polyline.on('click', function(e) {
-                                map.fitBounds(e.target.getBounds());
+                                polyline.on('click', function (e) {
+                                    map.fitBounds(e.target.getBounds());
+                                });
+                                polyline.addTo(polyLineGroup)
                             });
-                            polyline.addTo(polyLineGroup)
-                        });
-    
-                        polyLineGroup.addTo(map);
 
-                        info.update((data.length / 1000).toFixed(2))
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+                            polyLineGroup.addTo(map);
+
+                            info.update((data.length / 1000).toFixed(2))
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
             }
         }
     </script>
