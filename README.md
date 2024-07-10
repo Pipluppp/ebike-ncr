@@ -2,6 +2,9 @@
 
 A Dijkstra shortest path routing application for the Metro Manila road network which avoids the e-bike prohibited roads from [MMDA Regulation No. 24-022 series of 2024](https://mmda.gov.ph/100-news/news-2024/7256-february-19-2024-mmda-prohibits-e-vehicles-on-national-roads-penalties-for-violators-set.html). 
 
+![demo](https://github.com/Pipluppp/ebike-ncr/assets/70219682/592147b5-a214-4aa0-8342-af8da47b8eea)
+
+
 ## Metro Manila road network graph
 
 The graph of nodes and edges forming the Metro Manila driveable road network is taken from [OpenStreetMap](https://github.com/openstreetmap). Simplified and manually cleaned to remove the prohibited road edges where e-bike are prohibited through [OSMnx](https://osmnx.readthedocs.io/en/stable/).
