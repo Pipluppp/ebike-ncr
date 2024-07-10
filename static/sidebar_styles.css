@@ -1,7 +1,165 @@
-.lorem {
-    font-style: italic;
-    color: #AAA;
+
+.top {
+    width: 100%;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 12px 12px 12px 12px;
+    background: rgba(102, 102, 102, 0.12);
+    backdrop-filter: blur(5.900000095367432px);
+    padding: 0px;
+    overflow: auto;
 }
+
+.click {
+    font-family: Inter, sans-serif;
+    flex-grow: 1;
+    flex-basis: auto;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.ebike {
+    font-family: Inter, sans-serif;
+    flex-grow: 1;
+    flex-basis: auto;
+    margin: auto 0;
+    width: 349px;
+    height: 48px;
+    flex-shrink: 0;
+    color: #FFF;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: -0.96px;
+    margin-top: 42px;
+}
+
+.metro {
+    width: 258px;
+    height: 44px;
+    flex-shrink: 0;
+    color: #FFF;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    font-family: Inter, sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: -0.64px;
+    /*margin-top: 20px;*/
+}
+
+.desc {
+    width: 290px;
+    height: 37px;
+    flex-shrink: 0;
+    color: #FFF;
+    font-family: Inter, sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 18px;
+    margin-top: 18px;
+}
+
+.line {
+    width: 100%;
+    height: 1px;
+    background: #FFF;
+    margin-top: 30px;
+}   
+
+.navi {
+    width: 180px;
+    height: 26px;
+    flex-shrink: 0;
+    color: #FFF;
+    font-family: Inter, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin-top: 35px;
+}
+
+.guidelines {
+    width: 100%;
+    height: 138px;
+    flex-shrink: 0;
+    color: #FFF;
+    font-family: Inter, sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 25px;
+    margin-top: 5px;
+}
+/*.divabout {
+    border-radius: 12px;
+    backdrop-filter: blur(4.699999809265137px);
+    background-color: rgba(255, 255, 255, 0.04);
+    min-height: 195px;
+    max-width: 376px;
+}*/
+
+.about {
+    width: 180px;
+    height: 26px;
+    flex-shrink: 0;
+    color: #FFF;
+    font-family: Inter, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin-top: auto;
+}
+
+.about-web {
+    width: 100%;
+    height: 122px;
+    flex-shrink: 0;
+    color: #FFF;
+    text-align: justify;
+    font-family: Inter, sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 25px;
+    margin-top: 5px;
+}
+
+.tech {
+    width: 180px;
+    height: 26px;
+    flex-shrink: 0;
+    color: #FFF;
+    font-family: Inter, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin-top: 55px;
+}
+.div-13 {
+    width: 209px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-top: 15px;
+}
+
+.flask {
+    font-family: Inter, sans-serif;
+    margin: 10px;
+}
+
+.osmnx {
+    font-family: Inter, sans-serif;
+    margin-top: 10px;
+}
+
 
 body > #sidebar {
     display: none;

@@ -7,7 +7,8 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="static/L.Control.Sidebar.css" />
     <link rel="stylesheet" href="static/sidebar_styles.css">
     <style>
@@ -74,25 +75,55 @@
 
 <body>
     <div id="sidebar">
-        <h1>E-bike routing Metro Manila</h1>
+       
+            <div class="top">
+             
+              <div class="click">Click on the map.</div>
+            </div>
+                
+              <div class="ebike">E-bike routing</div>
+              <div class="metro">Metro Manila</div>
+            
+              <div class="desc">
+                A shortest path routing application on <a href="http://leafletjs.com/">LeafletJS</a> interactive maps.
+              </div>
 
-        <p>A shortest path routing application on <a href="http://leafletjs.com/">LeafletJS</a> interactive maps.</p>
+              <div class="line"></div>
 
-        <p><b>Click on the map.</b></p>
+              <div class="navi">How to use</div>
 
-        <p>Technologies:</p>
+              <div class="guidelines">
+                    1. Press right-click on the map as your desired current location.
+                    <br />
+                    2. Click “Directions from here”.
+                    <br />
+                    3. Locate your desired destination on the map.
+                    <br />
+                    4. Press right-click on the map then choose “Directions to here”.
+              </div>
 
-        <ul>
-            <li><a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a></li>
-            <li><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a></li>
-        </ul>
+              <div class="divabout"> 
+              <div class="about">About</div>
+              
+              <div class="about-web">
+                    This web application is designed to streamline your E-bike commutes and
+                    explorations within Metro Manila. Utilizing Dijkstra's algorithm the
+                    shortest path is provided for E-bikes, considering the MMDA Regulation No.
+                    24-022 prohibiting e-bikes from travelling on national roads,
+                    circumferential roads, and radial roads in all cities of NCR starting
+                    April 2024.
+              </div>
+            </div>
 
-        <p class="lorem">This web application is designed to streamline your E-bike commutes and explorations within Metro Manila. Utilizing Dijkstra's algorithm the shortest path is provided for E-bikes, considering the MMDA Regulation No. 24-022 prohibiting e-bikes from travelling on national roads, circumferential roads, and radial roads in all cities of NCR starting April 2024..</p>
+              <div class="tech">Technologies</div>
 
-        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-
-        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-
+              <div class="div-13">
+                    <div class="flask"><a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a></div>
+               
+                    <div class="osmnx"><a href="https://osmnx.readthedocs.io/en/stable/">OSMnx</a></div>
+               
+              </div>
+            
     </div>
     
     <button id="sidebarToggle"> </button>
