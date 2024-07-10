@@ -1,20 +1,13 @@
-# E-bike NCR Dijkstra routing
+# E-bike NCR Dijkstra 
 
-E-bike routing in NCR for shortest path
+A Dijkstra shortest path routing application for the Metro Manila road network which avoids the e-bike prohibited roads from [MMDA Regulation No. 24-022 series of 2024](https://mmda.gov.ph/100-news/news-2024/7256-february-19-2024-mmda-prohibits-e-vehicles-on-national-roads-penalties-for-violators-set.html). 
 
-## TODO
+## Metro Manila road network graph
 
-- [ ] Create the set of edges from `metro_drive.graphml` corresponding to the banned roads
-- [ ] **Map click as input**: logic for managing source and destination clicks, right click to choose if click is source or destination
-    - Check if map click within Metro Manila
-- [ ] **Form submission as input**: flask `GET` route, search engine, source and destination boxes 
-- [ ] Explore [taxicab OSMnx](https://github.com/nathanrooy/taxicab) for exact routing
+The graph of nodes and edges forming the Metro Manila driveable road network is taken from [OpenStreetMap](https://github.com/openstreetmap). Simplified and manually cleaned to remove the prohibited road edges where e-bike are prohibited through [OSMnx](https://osmnx.readthedocs.io/en/stable/).
 
+The graph is a [MultiDiGraph](https://networkx.org/documentation/stable/reference/classes/multidigraph.html) and then stored as a `.graphml` file. It contains 59,0555 nodes and 148,676 edges
 
-**Dynamic shortest path routes to destination clicked on map (fixed source)**
+## Interactive map and drawing shortest paths
 
-![demo](./ebike_ncr_demo.gif)
-
-Barebones setup of a [leaflet-sidebar](https://github.com/Turbo87/leaflet-sidebar) (just copied the basic example and the `.css` and `.js` files)
-
-![demo_sidebar](./leaflet_sidebar_demo.gif)
+An interactive map of the Metro Manila region is served using [LeafletJS](https://leafletjs.com/), and from user destination inputs the shortest path is calculated and drawn dynamically on the map. 
