@@ -11,3 +11,7 @@ The graph is a [MultiDiGraph](https://networkx.org/documentation/stable/referenc
 ## Interactive map and drawing shortest paths
 
 An interactive map of the Metro Manila region is served using [LeafletJS](https://leafletjs.com/), and from user destination inputs the shortest path is calculated and drawn dynamically on the map. 
+
+## Dijkstra algorithm
+
+The e-bike routing is a single-source single-target shortest path problem. The specific implementation is a Dijkstra without Decrease-Key operation using binary heaps from the python library `heapq`. See [Lewis (2023)](https://arxiv.org/abs/2303.10034) for runtime comparisons with other implementations. 
