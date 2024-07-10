@@ -9,7 +9,7 @@ A Dijkstra shortest path routing application for the Metro Manila road network w
 
 The graph of nodes and edges forming the Metro Manila driveable road network is taken from [OpenStreetMap](https://github.com/openstreetmap). Simplified and manually cleaned to remove the prohibited road edges where e-bike are prohibited through [OSMnx](https://osmnx.readthedocs.io/en/stable/).
 
-The graph is a [MultiDiGraph](https://networkx.org/documentation/stable/reference/classes/multidigraph.html) and then stored as a `.graphml` file. It contains 59,0555 nodes and 148,676 edges
+The graph is a [MultiDiGraph](https://networkx.org/documentation/stable/reference/classes/multidigraph.html) and then stored as a `.graphml` file. It contains 59,055 nodes and 148,676 edges
 
 ## Interactive map and drawing shortest paths
 
