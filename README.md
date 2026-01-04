@@ -1,20 +1,112 @@
-# E-bike NCR Dijkstra 
+# E-Bike NCR - Metro Manila Routing
 
-A Dijkstra shortest path routing application for the Metro Manila road network which avoids the e-bike prohibited roads from [MMDA Regulation No. 24-022 series of 2024](https://mmda.gov.ph/100-news/news-2024/7256-february-19-2024-mmda-prohibits-e-vehicles-on-national-roads-penalties-for-violators-set.html). 
+A fully client-side e-bike routing application for Metro Manila. Calculates safe routes that avoid MMDA-prohibited roads (national roads, circumferential roads, and radial roads) per Regulation No. 24-022.
 
-![demo](https://github.com/Pipluppp/ebike-ncr/assets/70219682/592147b5-a214-4aa0-8342-af8da47b8eea)
+![E-Bike Routing Demo](https://raw.githubusercontent.com/pipluppp/ebike-ncr/main/docs/demo.png)
 
+## Features
 
-## Metro Manila road network graph
+- 🗺️ **Interactive Map** - OpenFreeMap vector tiles with Leaflet
+- 🚴 **E-Bike Safe Routes** - Avoids prohibited roads per MMDA regulations
+- ⚡ **Fast Pathfinding** - NBA* algorithm via ngraph.path (~50ms for any route)
+- 📱 **Fully Client-Side** - No server required, runs entirely in browser
+- 🔄 **Lazy Loading** - Prohibited roads layer loads on-demand
 
-The graph of nodes and edges forming the Metro Manila driveable road network is taken from [OpenStreetMap](https://github.com/openstreetmap). Simplified and manually cleaned to remove the prohibited road edges where e-bike are prohibited through [OSMnx](https://osmnx.readthedocs.io/en/stable/).
+## Quick Start
 
-The graph is a [MultiDiGraph](https://networkx.org/documentation/stable/reference/classes/multidigraph.html) and then stored as a `.graphml` file. It contains 59,055 nodes and 148,676 edges
+### Option 1: Local Development
+```bash
+# Serve the static files
+python -m http.server 8000
 
-## Interactive map and drawing shortest paths
+# Open in browser
+# http://localhost:8000
+```
 
-An interactive map of the Metro Manila region is served using [LeafletJS](https://leafletjs.com/), and from user destination inputs the shortest path is calculated and drawn dynamically on the map. 
+### Option 2: Deploy to GitHub Pages
+Simply push to the `gh-pages` branch or configure GitHub Pages to serve from the `v2` branch.
 
-## Dijkstra algorithm
+## How to Use
 
-The e-bike routing is a single-source single-target shortest path problem. The specific implementation is a Dijkstra without Decrease-Key operation using binary heaps from the python library `heapq`. See [Lewis (2023)](https://arxiv.org/abs/2303.10034) for runtime comparisons with other implementations. 
+1. **Right-click** on the map at your starting location
+2. Select **"Directions from here"**
+3. **Right-click** on your destination
+4. Select **"Directions to here"**
+5. The optimal route avoiding prohibited roads will be displayed
+
+## Project Structure
+
+```
+ebike-ncr/
+├── index.html                 # Main application entry point
+├── static/
+│   ├── css/
+│   │   ├── app.css            # Application styles
+│   │   ├── L.Control.Sidebar.css
+│   │   └── sidebar_styles.css
+│   ├── js/
+│   │   ├── app.js             # Main routing logic (ngraph.path)
+│   │   ├── loadGraph.js       # Binary graph loader
+│   │   ├── L.Control.Sidebar.js
+│   │   └── button_toggle_visibility_sidebar.js
+│   └── data/
+│       ├── metro-manila.co.bin      # Node coordinates (binary)
+│       ├── metro-manila.gr.bin      # Edge list (binary)
+│       └── prohibited-roads.geojson # Prohibited roads layer
+├── data/                      # Original GraphML source files
+│   ├── metro_graph_without_prohibited.graphml
+│   └── metro_graph_prohibited.graphml
+├── scripts/                   # Python scripts for data regeneration
+│   ├── export_graph_binary.py
+│   └── export_prohibited_geojson.py
+└── docs/
+    └── implementation-plan.md
+```
+
+## Technical Details
+
+### Graph Data
+- **59,055 nodes** and **142,001 edges** representing Metro Manila's road network
+- Binary format: ~1.5MB total (vs 73MB GraphML)
+- Coordinates stored as Int32 (lat/lng × 1,000,000)
+
+### Pathfinding
+- Uses [ngraph.path](https://github.com/anvaka/ngraph.path) NBA* algorithm
+- Bi-directional A* search for optimal performance
+- Euclidean distance heuristic
+
+### Map
+- [OpenFreeMap](https://openfreemap.org/) vector tiles via MapLibre GL
+- Leaflet for overlays and interactivity
+
+## Regenerating Graph Data
+
+If you need to regenerate the binary graph data from the original GraphML files:
+
+```bash
+# Install dependencies
+pip install osmnx
+
+# Export binary graph
+python scripts/export_graph_binary.py
+
+# Export prohibited roads GeoJSON
+python scripts/export_prohibited_geojson.py
+```
+
+## Technologies
+
+- [Leaflet](https://leafletjs.com/) - Interactive maps
+- [MapLibre GL](https://maplibre.org/) - Vector tile rendering
+- [OpenFreeMap](https://openfreemap.org/) - Free map tiles
+- [ngraph.path](https://github.com/anvaka/ngraph.path) - Fast pathfinding
+- [OSMnx](https://osmnx.readthedocs.io/) - Graph data processing
+
+## License
+
+MIT License
+
+## Acknowledgments
+
+- Road network data from [OpenStreetMap](https://www.openstreetmap.org/)
+- MMDA Regulation No. 24-022 for e-bike road restrictions

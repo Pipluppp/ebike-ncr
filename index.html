@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="E-Bike safe routing application for Metro Manila using Dijkstra's algorithm, considering MMDA regulations on prohibited roads.">
+    <title>E-Bike Routing - Metro Manila</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- MapLibre GL CSS (for OpenFreeMap vector tiles) -->
+    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+
+    <!-- Application CSS -->
+    <link rel="stylesheet" href="static/css/app.css" />
+    <link rel="stylesheet" href="static/css/L.Control.Sidebar.css" />
+    <link rel="stylesheet" href="static/css/sidebar_styles.css" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-content">
+            <h2>E-bike routing</h2>
+            <div class="loading-subtitle">Metro Manila</div>
+            <p id="loading-message">Initializing...</p>
+            <div class="progress-bar">
+                <div id="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="top">
+            <div class="click">Click on the map.</div>
+        </div>
+
+        <div class="ebike">E-bike routing</div>
+        <div class="metro">Metro Manila</div>
+
+        <div class="desc">
+            A shortest path routing application on <a href="http://leafletjs.com/">LeafletJS</a> interactive maps.
+        </div>
+
+        <div class="line"></div>
+
+        <div class="navi">How to use</div>
+
+        <div class="guidelines">
+            1. Press right-click on the map as your desired current location.
+            <br />
+            2. Click "Directions from here".
+            <br />
+            3. Locate your desired destination on the map.
+            <br />
+            4. Press right-click on the map then choose "Directions to here".
+        </div>
+
+        <div class="divabout">
+            <div class="about">About</div>
+
+            <div class="about-web">
+                This web application is designed to streamline your E-bike commutes and
+                explorations within Metro Manila. Utilizing Dijkstra's algorithm the
+                shortest path is provided for E-bikes, considering the MMDA Regulation No.
+                24-022 prohibiting e-bikes from travelling on national roads,
+                circumferential roads, and radial roads in all cities of NCR starting
+                April 2024.
+            </div>
+        </div>
+
+        <div class="tech">Technologies</div>
+
+        <div class="div-13">
+            <div class="flask"><a href="https://github.com/anvaka/ngraph.path">ngraph.path</a></div>
+            <div class="osmnx"><a href="http://leafletjs.com/">LeafletJS</a></div>
+        </div>
+
+        <!-- Prohibited Roads Toggle -->
+        <button id="prohibited-toggle" onclick="toggleProhibitedRoads()">
+            <span class="toggle-icon"></span>
+            <span class="toggle-text">Show Prohibited Roads</span>
+        </button>
+    </div>
+
+    <button id="sidebarToggle"></button>
+
+    <div id="map"></div>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu">
+        <div class="context-menu-item context-menu-coords" id="coordinates"></div>
+        <div class="context-menu-item" id="directions-from">Directions from here</div>
+        <div class="context-menu-item" id="directions-to">Directions to here</div>
+    </div>
+
+    <!-- Dependencies -->
+    <!-- Leaflet -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- MapLibre GL (for OpenFreeMap vector tiles) -->
+    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+
+    <!-- MapLibre GL Leaflet bridge -->
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
+
+    <!-- ngraph ecosystem for pathfinding -->
+    <!-- createGraph global from ngraph.graph, ngraphPath global from ngraph.path -->
+    <script src="https://unpkg.com/ngraph.graph@20.1.0/dist/ngraph.graph.umd.js"></script>
+    <script src="https://unpkg.com/ngraph.path@1.6.0/dist/ngraph.path.umd.js"></script>
+
+    <!-- Spatial index is built-in (GridSpatialIndex class in app.js) -->
+
+    <!-- Initialize Map -->
+    <script>
+        // Initialize Leaflet map
+        var map = L.map('map').setView([14.6091, 121.0223], 12);
+
+        // OpenFreeMap vector tiles via MapLibre GL
+        L.maplibreGL({
+            style: 'https://tiles.openfreemap.org/styles/positron',
+            attribution: '<a href="https://openfreemap.org/">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Info control for displaying route distance
+        var info = L.control();
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+
+        info.update = function (props) {
+            this._div.innerHTML = '<h4>Shortest path</h4>';
+            if (props) {
+                this._div.innerHTML += '<b>' + props + '</b> km';
+            } else if (props === false) {
+                this._div.innerHTML += 'No route found';
+            } else {
+                this._div.innerHTML += 'Choose your destination';
+            }
+        };
+
+        info.addTo(map);
+
+        // NCR land boundary overlay
+        var ncr_geojson = 'https://raw.githubusercontent.com/faeldon/philippines-json-maps/master/2023/geojson/regions/medres/provdists-region-1300000000.0.01.json';
+
+        function addLandBoundary(url) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        style: function (feature) {
+                            return {
+                                'fillColor': '#190e16',
+                                'weight': 0,
+                                'fillOpacity': 0.15
+                            };
+                        }
+                    }).addTo(map);
+                })
+                .catch(error => console.error('Error loading NCR boundary:', error));
+        }
+
+        addLandBoundary(ncr_geojson);
+    </script>
+
+    <!-- Context Menu & Routing Logic -->
+    <script>
+        const contextMenu = document.getElementById('context-menu');
+        const coordsElement = document.getElementById('coordinates');
+
+        let sourceCircleMarker, destMarker;
+        let clickCoordinates;
+        let polyLineGroup = L.layerGroup();
+
+        // Context menu on right-click
+        map.on('contextmenu', function (e) {
+            e.originalEvent.preventDefault();
+            clickCoordinates = {
+                lat: e.latlng.lat,
+                lng: e.latlng.lng
+            };
+            coordsElement.textContent = `${clickCoordinates.lat.toFixed(5)}, ${clickCoordinates.lng.toFixed(5)}`;
+
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = `${e.containerPoint.x}px`;
+            contextMenu.style.top = `${e.containerPoint.y}px`;
+        });
+
+        // Hide context menu on click or move
+        map.on('click move', function () {
+            contextMenu.style.display = 'none';
+        });
+
+        // Directions from here
+        document.getElementById('directions-from').addEventListener('click', function () {
+            sourceCoordinates = clickCoordinates;
+            contextMenu.style.display = 'none';
+
+            // Remove existing source marker
+            if (sourceCircleMarker) map.removeLayer(sourceCircleMarker);
+
+            // Add new source marker
+            sourceCircleMarker = L.circleMarker([sourceCoordinates.lat, sourceCoordinates.lng], {
+                color: 'white',
+                radius: 8,
+                fillColor: '#fdd036',
+                fillOpacity: 0.8
+            }).addTo(map);
+
+            mapRoute();
+        });
+
+        // Directions to here
+        document.getElementById('directions-to').addEventListener('click', function () {
+            targetCoordinates = clickCoordinates;
+            contextMenu.style.display = 'none';
+
+            // Remove existing destination marker
+            if (destMarker) map.removeLayer(destMarker);
+
+            // Add new destination marker
+            destMarker = L.marker([targetCoordinates.lat, targetCoordinates.lng], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                })
+            }).addTo(map);
+
+            mapRoute();
+        });
+    </script>
+
+    <!-- Graph Loader & Application Logic -->
+    <script src="static/js/loadGraph.js"></script>
+    <script src="static/js/app.js"></script>
+
+    <!-- Sidebar Control -->
+    <script src="static/js/L.Control.Sidebar.js"></script>
+    <script src="static/js/button_toggle_visibility_sidebar.js"></script>
+</body>
+
+</html>

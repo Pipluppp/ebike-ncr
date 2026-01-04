@@ -1,0 +1,183 @@
+/* E-Bike NCR - Application Styles */
+
+/* Reset & Base */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+#map {
+    height: 100%;
+}
+
+.leaflet-container {
+    background: #262626;
+}
+
+/* Loading Overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 26, 26, 0.97);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+}
+
+.loading-content {
+    text-align: center;
+    color: #c0beb6;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.loading-content h2 {
+    margin: 0 0 0.5rem 0;
+    color: #fdd036;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.loading-content .loading-subtitle {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+#loading-message {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    color: #9a9a9a;
+    min-height: 1.2em;
+}
+
+.progress-bar {
+    width: 300px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+#loading-progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #fdd036, #b45513);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+/* Context Menu */
+.context-menu {
+    display: none;
+    position: absolute;
+    color: #c0beb6;
+    background-color: rgba(52, 52, 52, 0.4);
+    border: 1px solid #c0beb6;
+    z-index: 1000;
+    min-width: 150px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(163, 163, 163, 0.1);
+}
+
+.context-menu-item {
+    cursor: pointer;
+    padding: 8px 10px;
+}
+
+.context-menu-item:hover {
+    background-color: rgba(117, 117, 117, 0.1);
+}
+
+/* Info Control */
+.info {
+    padding: 10px 12px;
+    margin: 12px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    color: #c0beb6;
+    background-color: rgba(52, 52, 52, 0.4);
+    border: 1px solid #c0beb6;
+    z-index: 1000;
+    min-width: 150px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(163, 163, 163, 0.1);
+}
+
+.info h4 {
+    margin: 0 0 5px;
+    color: #b2b2b2;
+}
+
+/* Prohibited Roads Toggle */
+#prohibited-toggle {
+    margin-top: 1rem;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #c0beb6;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-family: inherit;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#prohibited-toggle:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+#prohibited-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#prohibited-toggle .toggle-icon {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#prohibited-toggle.active .toggle-icon::after {
+    content: '✓';
+    font-size: 12px;
+}
+
+/* Loading state for toggle */
+#prohibited-toggle.loading {
+    color: #fdd036;
+}
+
+#prohibited-toggle.loading .toggle-icon {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
