@@ -6,12 +6,30 @@
  * - ngraph.path (NBA*) for pathfinding
  * - Simple grid-based spatial index for click-to-node mapping
  * - Leaflet for map visualization
+ * 
+ * Supports two routing modes:
+ * - 'ebike': E-bike safe routes (avoids prohibited roads)
+ * - 'all': All roads (includes prohibited roads)
  */
 
-// Global state
-let graph = null;
-let pathFinder = null;
-let spatialIndex = null;  // Simple grid-based index
+// Global state - routing data
+let graphs = {
+    ebike: null,  // E-bike safe graph (without prohibited roads)
+    all: null     // Full graph (all roads)
+};
+let pathFinders = {
+    ebike: null,
+    all: null
+};
+let spatialIndexes = {
+    ebike: null,
+    all: null
+};
+
+// Current routing mode
+let currentMode = 'ebike';
+
+// Other state
 let prohibitedLayer = null;
 // Note: sourceCoordinates, targetCoordinates, polyLineGroup are declared in index.html
 
@@ -81,52 +99,39 @@ class GridSpatialIndex {
 }
 
 /**
- * Initialize the application.
+ * Initialize the application - loads BOTH graphs.
  */
 async function init() {
     try {
-        // Load graph with progress updates
-        const result = await loadGraph('static/data/metro-manila', updateProgress);
-        graph = result.graph;
-        const points = result.points;
-        
-        // Initialize pathfinder using NBA* (optimal bi-directional A*)
-        updateProgress({ message: 'Initializing pathfinder...', percent: 94 });
-        pathFinder = ngraphPath.nba(graph, {
-            distance(fromNode, toNode, link) {
-                // Euclidean distance as edge weight
-                const dx = fromNode.data.x - toNode.data.x;
-                const dy = fromNode.data.y - toNode.data.y;
-                return Math.sqrt(dx * dx + dy * dy);
-            },
-            heuristic(fromNode, toNode) {
-                // A* heuristic: straight-line distance to goal
-                const dx = fromNode.data.x - toNode.data.x;
-                const dy = fromNode.data.y - toNode.data.y;
-                return Math.sqrt(dx * dx + dy * dy);
-            }
+        // Load E-bike safe graph first (primary)
+        updateProgress({ message: 'Loading e-bike safe routes...', percent: 0 });
+        const ebikeResult = await loadGraph('static/data/metro-manila', (p) => {
+            updateProgress({ message: p.message, percent: p.percent * 0.45 });
         });
+        graphs.ebike = ebikeResult.graph;
         
-        // Build simple grid-based spatial index
-        updateProgress({ message: 'Building spatial index...', percent: 96 });
-        spatialIndex = new GridSpatialIndex(0.005);  // ~500m cells
+        // Build spatial index for e-bike graph
+        updateProgress({ message: 'Building e-bike spatial index...', percent: 45 });
+        spatialIndexes.ebike = await buildSpatialIndex(ebikeResult.points, 45, 50);
         
-        const nodeCount = points.length / 2;
-        for (let i = 0; i < points.length; i += 2) {
-            const nodeId = i / 2;
-            const lng = points[i];
-            const lat = points[i + 1];
-            spatialIndex.add(nodeId, lng, lat);
-            
-            if (i % 10000 === 0) {
-                updateProgress({ 
-                    message: `Building spatial index (${Math.round((i/2)/nodeCount*100)}%)...`, 
-                    percent: 96 + (i / points.length) * 4 
-                });
-                // Yield to UI
-                await new Promise(resolve => setTimeout(resolve, 0));
-            }
-        }
+        // Initialize e-bike pathfinder
+        updateProgress({ message: 'Initializing e-bike pathfinder...', percent: 50 });
+        pathFinders.ebike = createPathFinder(graphs.ebike);
+        
+        // Load full graph (all roads)
+        updateProgress({ message: 'Loading all roads graph...', percent: 52 });
+        const fullResult = await loadGraph('static/data/metro-manila-full', (p) => {
+            updateProgress({ message: p.message, percent: 52 + p.percent * 0.35 });
+        });
+        graphs.all = fullResult.graph;
+        
+        // Build spatial index for full graph
+        updateProgress({ message: 'Building all roads spatial index...', percent: 87 });
+        spatialIndexes.all = await buildSpatialIndex(fullResult.points, 87, 95);
+        
+        // Initialize full pathfinder
+        updateProgress({ message: 'Initializing all roads pathfinder...', percent: 95 });
+        pathFinders.all = createPathFinder(graphs.all);
         
         updateProgress({ message: 'Ready!', percent: 100 });
         
@@ -140,13 +145,58 @@ async function init() {
             loadingOverlay.style.display = 'none';
         }, 300);
         
-        console.log(`Application ready: ${graph.getNodesCount()} nodes, ${graph.getLinksCount()} edges`);
+        console.log(`E-bike graph: ${graphs.ebike.getNodesCount()} nodes, ${graphs.ebike.getLinksCount()} edges`);
+        console.log(`Full graph: ${graphs.all.getNodesCount()} nodes, ${graphs.all.getLinksCount()} edges`);
         
     } catch (error) {
         console.error('Failed to initialize:', error);
         loadingMessage.textContent = `Error: ${error.message}`;
         loadingProgress.style.background = '#ff4444';
     }
+}
+
+/**
+ * Build spatial index from points array.
+ */
+async function buildSpatialIndex(points, progressStart, progressEnd) {
+    const index = new GridSpatialIndex(0.005);
+    const nodeCount = points.length / 2;
+    
+    for (let i = 0; i < points.length; i += 2) {
+        const nodeId = i / 2;
+        const lng = points[i];
+        const lat = points[i + 1];
+        index.add(nodeId, lng, lat);
+        
+        if (i % 10000 === 0) {
+            const pct = progressStart + ((i / points.length) * (progressEnd - progressStart));
+            updateProgress({ 
+                message: `Building spatial index (${Math.round((i/2)/nodeCount*100)}%)...`, 
+                percent: pct 
+            });
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
+    }
+    
+    return index;
+}
+
+/**
+ * Create pathfinder for a graph.
+ */
+function createPathFinder(graph) {
+    return ngraphPath.nba(graph, {
+        distance(fromNode, toNode, link) {
+            const dx = fromNode.data.x - toNode.data.x;
+            const dy = fromNode.data.y - toNode.data.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        },
+        heuristic(fromNode, toNode) {
+            const dx = fromNode.data.x - toNode.data.x;
+            const dy = fromNode.data.y - toNode.data.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+    });
 }
 
 /**
@@ -158,21 +208,51 @@ function updateProgress({ message, percent }) {
 }
 
 /**
+ * Set the routing mode (called from UI).
+ */
+function setRoutingMode(mode) {
+    if (mode === currentMode) return;
+    if (!graphs[mode] || !pathFinders[mode]) {
+        console.warn(`Graph for mode '${mode}' not loaded yet`);
+        return;
+    }
+    
+    currentMode = mode;
+    
+    // Update UI
+    document.getElementById('mode-ebike').classList.toggle('active', mode === 'ebike');
+    document.getElementById('mode-all').classList.toggle('active', mode === 'all');
+    
+    // Update hint text
+    const hint = document.getElementById('routing-hint');
+    if (hint) {
+        hint.textContent = mode === 'ebike' 
+            ? 'Avoids prohibited roads' 
+            : 'Uses all available roads';
+    }
+    
+    console.log(`Routing mode set to: ${mode}`);
+    
+    // Recalculate route if we have source and target
+    if (sourceCoordinates && targetCoordinates) {
+        mapRoute();
+    }
+}
+
+/**
  * Find the nearest graph node to a lat/lng coordinate.
- * Uses simple grid-based spatial index for efficient lookup.
- * 
- * @param {number} lat - Latitude
- * @param {number} lng - Longitude
- * @returns {number|null} Node ID or null if not found
+ * Uses the current mode's spatial index.
  */
 function findNearestNode(lat, lng) {
+    const spatialIndex = spatialIndexes[currentMode];
+    const graph = graphs[currentMode];
+    
     if (!spatialIndex || !graph) return null;
     
     // Search with expanding radius
     let radiusCells = 1;
     let candidates = spatialIndex.findNear(lng, lat, radiusCells);
     
-    // Expand search if nothing found
     while (candidates.length === 0 && radiusCells < 20) {
         radiusCells++;
         candidates = spatialIndex.findNear(lng, lat, radiusCells);
@@ -183,7 +263,7 @@ function findNearestNode(lat, lng) {
         return null;
     }
     
-    // Find closest node among candidates
+    // Find closest node
     let minDist = Infinity;
     let closestNodeId = null;
     
@@ -203,10 +283,11 @@ function findNearestNode(lat, lng) {
 
 /**
  * Calculate route between source and target coordinates.
- * 
- * @returns {Object|null} { coords: [[lat, lng], ...], distance: km } or null
+ * Uses the current mode's pathfinder.
  */
 function calculateRoute() {
+    const pathFinder = pathFinders[currentMode];
+    
     if (!sourceCoordinates || !targetCoordinates || !pathFinder) {
         return null;
     }
@@ -219,7 +300,7 @@ function calculateRoute() {
         return null;
     }
     
-    console.log(`Finding path from node ${startNodeId} to ${endNodeId}`);
+    console.log(`Finding path (${currentMode}) from node ${startNodeId} to ${endNodeId}`);
     
     const startTime = performance.now();
     const path = pathFinder.find(startNodeId, endNodeId);
@@ -247,13 +328,9 @@ function calculateRoute() {
 
 /**
  * Haversine formula for accurate geographic distance.
- * 
- * @param {number} lat1, lon1 - First point
- * @param {number} lat2, lon2 - Second point
- * @returns {number} Distance in kilometers
  */
 function haversineDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth radius in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) ** 2 + 
@@ -264,7 +341,6 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 
 /**
  * Main routing function - called when source or target changes.
- * Replaces the original fetch('/process_coords') call.
  */
 function mapRoute() {
     // Clear existing route
@@ -273,7 +349,6 @@ function mapRoute() {
         polyLineGroup.clearLayers();
     }
     
-    // Only calculate when both coordinates are set
     if (!sourceCoordinates || !targetCoordinates) {
         return;
     }
@@ -291,7 +366,6 @@ function mapRoute() {
     polyLineStyles.forEach(style => {
         const polyline = new L.Polyline(result.coords, style);
         
-        // Hover effects
         polyline.on('mouseover', function(e) {
             e.target.setStyle({ color: '#0c0a0b' });
         });
@@ -309,8 +383,9 @@ function mapRoute() {
     
     polyLineGroup.addTo(map);
     
-    // Update info panel with distance
-    info.update(result.distance.toFixed(2));
+    // Update info panel with distance and mode indicator
+    const modeLabel = currentMode === 'ebike' ? ' (e-bike)' : ' (all roads)';
+    info.update(result.distance.toFixed(2) + modeLabel);
 }
 
 /**
@@ -318,7 +393,6 @@ function mapRoute() {
  */
 async function toggleProhibitedRoads() {
     if (prohibitedLayer) {
-        // Layer already loaded, just toggle visibility
         if (map.hasLayer(prohibitedLayer)) {
             map.removeLayer(prohibitedLayer);
             prohibitedToggle.classList.remove('active');
@@ -331,7 +405,6 @@ async function toggleProhibitedRoads() {
         return;
     }
     
-    // First time: load the GeoJSON
     prohibitedToggle.disabled = true;
     prohibitedToggle.classList.add('loading');
     prohibitedToggle.querySelector('.toggle-text').textContent = 'Loading...';

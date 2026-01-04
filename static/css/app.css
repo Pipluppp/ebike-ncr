@@ -1,7 +1,8 @@
 /* E-Bike NCR - Application Styles */
 
 /* Reset & Base */
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
 }
@@ -124,6 +125,61 @@ body {
     color: #b2b2b2;
 }
 
+/* Routing Mode Section */
+.routing-mode-section {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.routing-mode-label {
+    color: #FFF;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.routing-mode-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #9a9a9a;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    font-family: inherit;
+    text-align: center;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #c0beb6;
+}
+
+.mode-btn.active {
+    background: rgba(253, 208, 54, 0.2);
+    border-color: #fdd036;
+    color: #fdd036;
+}
+
+.mode-btn.loading {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.routing-mode-hint {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #6a6a6a;
+    font-style: italic;
+}
+
 /* Prohibited Roads Toggle */
 #prohibited-toggle {
     margin-top: 1rem;
@@ -178,6 +234,13 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }

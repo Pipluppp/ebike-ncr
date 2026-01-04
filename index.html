@@ -85,6 +85,20 @@
             <div class="osmnx"><a href="http://leafletjs.com/">LeafletJS</a></div>
         </div>
 
+        <!-- Routing Mode Toggle -->
+        <div class="routing-mode-section">
+            <div class="routing-mode-label">Routing Mode</div>
+            <div class="routing-mode-buttons">
+                <button id="mode-ebike" class="mode-btn active" onclick="setRoutingMode('ebike')">
+                    🚴 E-bike Safe
+                </button>
+                <button id="mode-all" class="mode-btn" onclick="setRoutingMode('all')">
+                    🛣️ All Roads
+                </button>
+            </div>
+            <div class="routing-mode-hint" id="routing-hint">Avoids prohibited roads</div>
+        </div>
+
         <!-- Prohibited Roads Toggle -->
         <button id="prohibited-toggle" onclick="toggleProhibitedRoads()">
             <span class="toggle-icon"></span>
@@ -127,7 +141,7 @@
 
         // OpenFreeMap vector tiles via MapLibre GL
         L.maplibreGL({
-            style: 'https://tiles.openfreemap.org/styles/positron',
+            style: 'https://tiles.openfreemap.org/styles/bright',
             attribution: '<a href="https://openfreemap.org/">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
@@ -152,27 +166,71 @@
 
         info.addTo(map);
 
-        // NCR land boundary overlay
+        // NCR land boundary - inverted overlay (grays out area OUTSIDE NCR)
         var ncr_geojson = 'https://raw.githubusercontent.com/faeldon/philippines-json-maps/master/2023/geojson/regions/medres/provdists-region-1300000000.0.01.json';
 
-        function addLandBoundary(url) {
+        function addInvertedMask(url) {
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
+                    // Create a large outer ring that covers the visible world
+                    const outerRing = [
+                        [-180, -90],
+                        [-180, 90],
+                        [180, 90],
+                        [180, -90],
+                        [-180, -90]
+                    ];
+
+                    // Collect ALL polygon rings from all NCR districts
+                    const allHoles = [];
+
+                    data.features.forEach(feature => {
+                        if (feature.geometry.type === 'Polygon') {
+                            // Add the exterior ring as a hole
+                            allHoles.push(feature.geometry.coordinates[0]);
+                        } else if (feature.geometry.type === 'MultiPolygon') {
+                            // Add each polygon's exterior ring as a hole
+                            feature.geometry.coordinates.forEach(polygonCoords => {
+                                allHoles.push(polygonCoords[0]);
+                            });
+                        }
+                    });
+
+                    // Create ONE inverted polygon with ALL NCR districts as holes
+                    const invertedPolygon = {
+                        type: 'Feature',
+                        properties: {},
+                        geometry: {
+                            type: 'Polygon',
+                            coordinates: [outerRing, ...allHoles]
+                        }
+                    };
+
+                    // Add the mask layer
+                    L.geoJSON(invertedPolygon, {
+                        style: {
+                            fillColor: '#1a1a1a',
+                            fillOpacity: 0.4,
+                            stroke: false
+                        }
+                    }).addTo(map);
+
+                    // Add border around NCR (all districts)
                     L.geoJSON(data, {
-                        style: function (feature) {
-                            return {
-                                'fillColor': '#190e16',
-                                'weight': 0,
-                                'fillOpacity': 0.15
-                            };
+                        style: {
+                            fill: false,
+                            stroke: true,
+                            color: '#fdd036',
+                            weight: 1.5,
+                            opacity: 0.5
                         }
                     }).addTo(map);
                 })
                 .catch(error => console.error('Error loading NCR boundary:', error));
         }
 
-        addLandBoundary(ncr_geojson);
+        addInvertedMask(ncr_geojson);
     </script>
 
     <!-- Context Menu & Routing Logic -->

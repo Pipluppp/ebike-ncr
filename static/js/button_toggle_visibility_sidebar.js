@@ -50,24 +50,3 @@ map.on('click', function() {
         updateToggleButton();
     }
 });
-
-// Sidebar event logging (for debugging)
-sidebar.on('show', function() {
-    console.log('Sidebar showing...');
-});
-
-sidebar.on('shown', function() {
-    console.log('Sidebar visible.');
-});
-
-sidebar.on('hide', function() {
-    console.log('Sidebar hiding...');
-});
-
-sidebar.on('hidden', function() {
-    console.log('Sidebar hidden.');
-});
-
-L.DomEvent.on(sidebar.getCloseButton(), 'click', function() {
-    console.log('Close button clicked.');
-});
